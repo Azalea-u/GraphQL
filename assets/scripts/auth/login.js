@@ -1,10 +1,11 @@
 import { login_handler } from "./auth.js";
 
-export class Login {
-    static create() {
-        const form = document.createElement('div');
-        form.classList.add('login-form');
-        form.innerHTML = `
+export class Login extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: "open" }); // Use shadow DOM for encapsulation.
+
+        this.shadowRoot.innerHTML = `
             <form class="form" id="login-form">
                 <h1 class="form__title">Login</h1>
                 <label for="email_or_username" class="form__label">Email or Username</label>
@@ -18,7 +19,7 @@ export class Login {
             </form>
         `;
 
-        form.querySelector('#login-form').addEventListener('submit', login_handler);
-        return form;
+        // Add event listener to handle form submission.
+        this.shadowRoot.querySelector('#login-form').addEventListener('submit', login_handler);
     }
 }

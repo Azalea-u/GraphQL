@@ -1,15 +1,17 @@
-import { Login } from "./auth/login"
-import { checkAuth, logout } from "./auth/auth"
+import { Login } from "./auth/login.js";
+import { checkAuth, logout } from "./auth/auth.js";
 
-customElements.define('login-page', Login)
+// Define the custom element.
+customElements.define('login-page', Login);
 
 if (checkAuth()) {
     document.body.innerHTML = `
         <h1>Authenticated</h1>
-        <button class="logout-button" onclick="logout()">Logout</button>
+        <button class="logout-button">Logout</button>
     `
-}else{
-    document.body.innerHTML = `
-        <login-page></login-page>
-    `
+
+    const logoutButton = document.querySelector('.logout-button');
+    logoutButton.addEventListener('click', logout);
+} else {
+    document.body.innerHTML = `<login-page></login-page>`;
 }

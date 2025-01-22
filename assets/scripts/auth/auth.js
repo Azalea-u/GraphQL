@@ -1,9 +1,10 @@
 // Handles user login
 export const login_handler = async (event) => {
     event.preventDefault()
-    const email_or_username = document.getElementById('email_or_username').value.trim()
-    const password = document.getElementById('password').value.trim()
-    const errorMessage = document.getElementById('error-message')
+    const form = event.target.closest('form')
+    const email_or_username = form.querySelector('#email_or_username').value.trim()
+    const password = form.querySelector('#password').value.trim()
+    const errorMessage = form.querySelector('#error-message')
 
     errorMessage.style.display = 'none'
 
@@ -26,12 +27,17 @@ export const login_handler = async (event) => {
             throw new Error('Invalid login credentials.')
         }
 
-        const data = await response.json()
-        const token = data.token
+        const token = await response.text()
+        if (!token) {
+            throw new Error('Token not provided in the response.')
+        }
 
-        // Store the token in localStorage
+        // Store the token in localStorage and update the page
         localStorage.setItem('authToken', token)
         console.log('Login successful, token:', token)
+
+        // Redirect to authenticated view
+        window.location.reload()
 
     } catch (error) {
         errorMessage.textContent = error.message || "An error occurred during login."
@@ -57,7 +63,7 @@ export const checkAuth = () => {
     }
 
     try {
-        const payload = JSON.parse(atob(token.split('.')[1])) // Decode the payload of the JWT
+        const payload = JSON.parse(atob(token.split('.')[1])) // Decode JWT payload
         const isExpired = Date.now() >= payload.exp * 1000 // Check expiration
         if (isExpired) {
             console.warn('Token has expired')
