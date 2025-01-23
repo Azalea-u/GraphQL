@@ -14,4 +14,9 @@ if (checkAuth()) {
     logoutButton.addEventListener('click', logout);
 } else {
     document.body.innerHTML = `<login-page></login-page>`;
+    // apply css file
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './assets/styles/auth/login.css';
+    document.head.appendChild(link);
 }
