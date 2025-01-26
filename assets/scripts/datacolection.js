@@ -1,67 +1,76 @@
 export const fetchData = async () => {
     const auth = localStorage.getItem('authToken');
+    if (!auth) {
+        console.error('No authentication token found.');
+        return null;
+    }
+
     const query = {
-        query: `{
-            user {
-                id
-                login
-                firstName
-                lastName
-                email
-                campus
-                auditRatio
-                totalUp
-                totalDown
-                xpTotal: transactions_aggregate(where: {type: {_eq: "xp"}, eventId: {_eq: 56}}) {
-                  aggregate {
-                    sum {
-                      amount
+        query: `
+            query UserData($eventId: Int!) {
+                user {
+                    id
+                    login
+                    firstName
+                    lastName
+                    email
+                    campus
+                    auditRatio
+                    totalUp
+                    totalDown
+                    xpTotal: transactions_aggregate(where: {type: {_eq: "xp"}, eventId: {_eq: $eventId}}) {
+                        aggregate {
+                            sum {
+                                amount
+                            }
+                        }
                     }
-                  }
-                }
-                events(where:{eventId:{_eq:56}}) {
-                  level
-                }
-                xp: transactions(order_by: {createdAt: asc}
-                  where: {type: {_eq: "xp"}, eventId: {_eq: 56}}) {
-                    createdAt
-                    amount
-                    path
-                }
-                finished_projects: groups(where:{group:{status:{_eq:finished}}}) {
-                    group {
-                    path
-                    status
-                  }
-                }
-                current_projects: groups(where:{group:{status:{_eq:working}}}) {
-                    group {
-                    path
-                    status
-                    members {
-                      userLogin
+                    events(where: {eventId: {_eq: $eventId}}) {
+                        level
                     }
-                  }
-                }
-                setup_project: groups(where:{group:{status:{_eq:setup}}}) {
-                    group {
-                    path
-                    status
-                    members {
-                      userLogin
+                    xp: transactions(order_by: {createdAt: asc}, where: {type: {_eq: "xp"}, eventId: {_eq: $eventId}}) {
+                        createdAt
+                        amount
+                        path
                     }
-                  }
-                }
-                skills: transactions(
-                    order_by: {type: asc, amount: desc}
-                    distinct_on: [type]
-                    where: {eventId: {_eq: 56}, _and: {type: {_like: "skill_%"}}}
-                ) {
-                    type
-                    amount
+                    finished_projects: groups(where: {group: {status: {_eq: "finished"}}}) {
+                        group {
+                            path
+                            status
+                        }
+                    }
+                    current_projects: groups(where: {group: {status: {_eq: "working"}}}) {
+                        group {
+                            path
+                            status
+                            members {
+                                userLogin
+                            }
+                        }
+                    }
+                    setup_project: groups(where: {group: {status: {_eq: "setup"}}}) {
+                        group {
+                            path
+                            status
+                            members {
+                                userLogin
+                            }
+                        }
+                    }
+                    skills: transactions(
+                        order_by: {type: asc, amount: desc}
+                        distinct_on: [type]
+                        where: {eventId: {_eq: $eventId}, _and: {type: {_like: "skill_%"}}}
+                    ) {
+                        type
+                        amount
+                    }
                 }
             }
-        }`
+        `,
+        variables: {
+            eventId: 56,
+        },
     };
 
     try {
@@ -74,15 +83,24 @@ export const fetchData = async () => {
             body: JSON.stringify(query),
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch data.');
+        const responseData = await response.json();
+
+        // Check for errors in the response
+        if (responseData.errors) {
+            console.error("GraphQL Errors:", responseData.errors);
+            return null;
         }
 
-        const data = await response.json();
-        return data;
+        // Check if the data structure is valid
+        if (!responseData || !responseData.data || !responseData.data.user) {
+            console.error('Invalid data structure:', responseData);
+            return null;
+        }
+
+        return responseData.data;
+
     } catch (error) {
         console.error('Error fetching data:', error);
+        return null;
     }
 };
-
-export default fetchData;

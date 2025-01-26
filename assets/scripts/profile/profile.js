@@ -1,6 +1,7 @@
-import fetchData from "../datacolection.js";
+import { fetchData } from "../datacolection.js";  // Ensure the correct import for fetchData
 
-export class ProfilePage extends HTMLElement {    constructor() {
+export class ProfilePage extends HTMLElement {
+    constructor() {
         super();
         this.attachShadow({ mode: "open" });
     }
@@ -8,6 +9,10 @@ export class ProfilePage extends HTMLElement {    constructor() {
     async connectedCallback() {
         try {
             const data = await fetchData();
+
+            // Log the fetched data to inspect its structure
+            console.log("Fetched User Data:", data);
+
             if (data && data.data && data.data.user) {
                 const user = data.data.user[0];
                 this.renderProfile(user);
@@ -15,6 +20,7 @@ export class ProfilePage extends HTMLElement {    constructor() {
                 this.renderError("Failed to load user data.");
             }
         } catch (error) {
+            console.error('Error in connectedCallback:', error);
             this.renderError("An error occurred while fetching data.");
         }
     }
@@ -41,6 +47,9 @@ export class ProfilePage extends HTMLElement {    constructor() {
                     margin: 5px 0;
                 }
             </style>
+            <div class="logout">
+                <button class="logout-button">Logout</button>
+            </div>
             <div class="profile">
                 <h1>${user.firstName} ${user.lastName}</h1>
                 <p><strong>Login:</strong> ${user.login}</p>
