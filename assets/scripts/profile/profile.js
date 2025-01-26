@@ -1,6 +1,6 @@
 import fetchData from "../datacolection.js";
 
-export default class ProfilePage extends HTMLElement {    constructor() {
+export class ProfilePage extends HTMLElement {    constructor() {
         super();
         this.attachShadow({ mode: "open" });
     }
