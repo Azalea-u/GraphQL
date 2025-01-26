@@ -7,7 +7,9 @@ customElements.define('login-page', Login);
 customElements.define('profile-page', ProfilePage);
 
 if (checkAuth()) {
-    document.body.innerHTML = `<profile-page></profile-page>`;
+    document.body.innerHTML = `
+    <button class="logout-button">Logout</button>
+    <profile-page></profile-page>`;
 
     const logoutButton = document.querySelector('.logout-button');
     logoutButton.addEventListener('click', logout);

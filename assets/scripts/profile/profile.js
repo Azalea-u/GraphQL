@@ -41,9 +41,6 @@ export class ProfilePage extends HTMLElement {    constructor() {
                     margin: 5px 0;
                 }
             </style>
-            div class="logout">
-                <button class="logout-button">Logout</button>
-            </div>
             <div class="profile">
                 <h1>${user.firstName} ${user.lastName}</h1>
                 <p><strong>Login:</strong> ${user.login}</p>
