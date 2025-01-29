@@ -1,6 +1,5 @@
 export const fetchData = async () => {
     const auth = localStorage.getItem('authToken');
-    console.log(auth);
     const query = {
         query: `{
             user {
@@ -70,10 +69,12 @@ export const fetchData = async () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMzk0IiwiaWF0IjoxNzM3OTg4MjY2LCJpcCI6IjEwLjI0OC4wLjg4LCAxNzIuMTguMC4yIiwiZXhwIjoxNzM4MDc0NjY2LCJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsidXNlciJdLCJ4LWhhc3VyYS1jYW1wdXNlcyI6Int9IiwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoidXNlciIsIngtaGFzdXJhLXVzZXItaWQiOiIyMzk0IiwieC1oYXN1cmEtdG9rZW4taWQiOiIyNjllMjJhMi05OTRmLTQ3YzgtYjhkNy0xZmE5YWZlNzMwZjEifX0.CCWDUw-3kiFRbCHopbJ84xEi-vADqEqiNSuFmqRxEUU`,
+                Authorization: `Bearer ${auth.slice(1, -1)}`,
             },
             body: JSON.stringify(query),
         });
+        console.log(auth);
+
 
         if (!response.ok) {
             throw new Error('Failed to fetch data.');
