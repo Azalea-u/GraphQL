@@ -6,6 +6,7 @@ export class ProfilePage extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this.shadowRoot.innerHTML = this.loadingTemplate();
   }
 
   async connectedCallback() {
@@ -13,9 +14,8 @@ export class ProfilePage extends HTMLElement {
       const data = await fetchData();
       console.log("Fetched User Data:", data);
 
-      if (data && data.data && data.data.user) {
-        const user = data.data.user[0];
-        this.renderProfile(user);
+      if (data?.data?.user?.length > 0) {
+        this.renderProfile(data.data.user[0]);
       } else {
         this.renderError("Failed to load user data.");
       }
@@ -25,79 +25,171 @@ export class ProfilePage extends HTMLElement {
     }
   }
 
+  loadingTemplate() {
+    return `
+      <style>
+        :host {
+          --C: #5bf870;
+          --Bg: #05321e;
+          --Ts: #5bf870a4;
+          display: block;
+          font-family: 'VT323', Helvetica, sans-serif;
+          color: var(--C);
+        }
+        .loading {
+          background: var(--Bg);
+          padding: 20px;
+          font-size: 1.5em;
+          text-shadow: 0 0 5px var(--Ts);
+        }
+      </style>
+      <div class="loading">Loading profile...</div>
+    `;
+  }
+
   renderProfile(user) {
     const xpChart = renderXPChart(user.xp);
     const radarChart = renderRadarChart(user.skills);
+    const auditRatio = user.auditRatio ? user.auditRatio.toFixed(2) : "N/A";
+
+    const renderProjects = (projects) => 
+      projects.length > 0 
+        ? projects.map(proj => `<li> ${proj.group.path} (${proj.group.status})</li>`).join("")
+        : `<li class="no-projects">No projects available</li>`;
 
     this.shadowRoot.innerHTML = `
       <style>
+        :host {
+          --C: #5bf870;
+          --Bg: #05321e;
+          --Ts: #5bf870a4;
+          display: block;
+          font-family: 'VT323', Helvetica, sans-serif;
+          color: var(--C);
+        }
         .profile {
-          background: #fff;
+          background: var(--Bg);
           padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          font-family: Arial, sans-serif;
-          color: #333;
+          border: 1px solid var(--C);
+          border-radius: 5px;
+          text-shadow: 0 0 5px var(--Ts);
+          height: calc(100vh - 128px);
+          overflow-y: auto;
         }
-        h1, h2, h3 {
-          color: #333;
+        /* Window content scrollbar styles */
+          .window-content::-webkit-scrollbar,
+          form textarea::-webkit-scrollbar {
+            width: 18px;
+            height: 18px;
+          }
+          .window-content::-webkit-scrollbar-track,
+          form textarea::-webkit-scrollbar-track {
+            background-color: rgba(0, 128, 0, 0.2); 
+          }
+          .window-content::-webkit-scrollbar-thumb,
+          form textarea::-webkit-scrollbar-thumb {
+            background-color: rgba(0,255,0,1);
+          }
+          .window-content::-webkit-scrollbar-thumb:hover,
+          form textarea::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(0,255,0,0.8);
+          }
+          .window-content::-webkit-scrollbar-corner,
+          form textarea::-webkit-scrollbar-corner {
+            background-color: transparent;
+          }
+        .info {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
         }
-        ul {
-          list-style: none;
-          padding: 0;
-        }
-        ul li {
+        .info p {
           margin: 5px 0;
         }
-        
+        .stats {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 10px;
+        }
+        .card {
+          background: rgba(0, 255, 0, 0.1);
+          padding: 10px;
+          border-radius: 4px;
+          border: 1px solid var(--C);
+          min-width: 120px;
+        }
+        .projects {
+          margin-top: 20px;
+        }
+        .projects h3 {
+          margin-bottom: 5px;
+        }
+        .projects ul {
+          padding-left: 20px;
+          list-style: none;
+        }
+        .projects li {
+          padding: 3px 0;
+        }
+        .projects li::before {
+          content: " ├──";
+          margin-right: 5px;
+        }
+        .projects li:last-child::before {
+          content: " └──";
+          margin-right: 5px;
+        }
+        .projects .no-projects::before {
+          content: "" !important;
+        }
+
+        .charts {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          margin-top: 20px;
+        }
+        .chart {
+          min-width: 350px;
+        }
       </style>
+
       <div class="profile">
         <h1>${user.firstName} ${user.lastName}</h1>
-        <p><strong>Login:</strong> ${user.login}</p>
-        <p><strong>Email:</strong> ${user.email}</p>
-        <p><strong>Campus:</strong> ${user.campus}</p>
-        <p><strong>Audit Ratio:</strong> ${user.auditRatio}</p>
-        <p><strong>Total Up:</strong> ${user.totalUp}</p>
-        <p><strong>Total Down:</strong> ${user.totalDown}</p>
-        <h2>XP Statistics</h2>
-        <ul>
-          <li><strong>Total XP:</strong> ${user.xpTotal.aggregate.sum.amount || 0}</li>
-          ${user.xp.map(xp => `
-            <li><strong>${xp.createdAt}:</strong> ${xp.amount} XP</li>
-          `).join("")}
-        </ul>
-        <h2>Projects</h2>
-        <h3>Finished Projects</h3>
-        <ul>
-          ${user.finished_projects.map(proj => `
-            <li>${proj.group.path} (${proj.group.status})</li>
-          `).join("")}
-        </ul>
-        <h3>Current Projects</h3>
-        <ul>
-          ${user.current_projects.map(proj => `
-            <li>${proj.group.path} (${proj.group.status})</li>
-          `).join("")}
-        </ul>
-        <h3>Setup Projects</h3>
-        <ul>
-          ${user.setup_project.map(proj => `
-            <li>${proj.group.path} (${proj.group.status})</li>
-          `).join("")}
-        </ul>
-        <h2>Skills</h2>
-        <ul>
-          ${user.skills.map(skill => `
-            <li>${skill.type}: ${skill.amount}</li>
-          `).join("")}
-        </ul>
+
+        <div class="info">
+          <p><strong>Login:</strong> ${user.login}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Campus:</strong> ${user.campus}</p>
+        </div>
+
+        <div class="stats">
+          <div class="card"><strong>Audit Ratio:</strong> ${auditRatio}</div>
+          <div class="card"><strong>Total Up:</strong> ${user.totalUp}</div>
+          <div class="card"><strong>Total Down:</strong> ${user.totalDown}</div>
+        </div>
+
+        <div class="projects">
+          <h2>Projects</h2>
+
+          <h3>Finished Projects</h3>
+          <ul>${renderProjects(user.finished_projects)}</ul>
+
+          <h3>Current Projects</h3>
+          <ul>${renderProjects(user.current_projects)}</ul>
+
+          <h3>Setup Projects</h3>
+          <ul>${renderProjects(user.setup_project)}</ul>
+        </div>
+
         <div class="charts">
           <div class="chart">
-            <h3>XP Over Time</h3>
+            <h3>XP Progression</h3>
             ${xpChart}
           </div>
           <div class="chart">
-            <h3>Skills Radar Chart</h3>
+            <h3>Skills Overview</h3>
             ${radarChart}
           </div>
         </div>
@@ -108,9 +200,16 @@ export class ProfilePage extends HTMLElement {
   renderError(message) {
     this.shadowRoot.innerHTML = `
       <style>
+        :host {
+          --C: #5bf870;
+          --Bg: #05321e;
+          display: block;
+          font-family: 'VT323', Helvetica, sans-serif;
+          color: var(--C);
+          padding: 20px;
+        }
         .error {
-          color: red;
-          font-family: Arial, sans-serif;
+          text-shadow: 0 0 5px var(--Ts, #5bf870a4);
         }
       </style>
       <div class="error">${message}</div>
