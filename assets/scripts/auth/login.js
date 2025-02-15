@@ -1,4 +1,4 @@
-import { login_handler } from "./auth.js";
+import { loginHandler } from "./auth.js";
 
 export class Login extends HTMLElement {
   constructor() {
@@ -7,6 +7,7 @@ export class Login extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
+        /* Input field styling */
         input {
           background-color: transparent;
           width: 100%;
@@ -23,6 +24,7 @@ export class Login extends HTMLElement {
           outline: none;
         }
 
+        /* Autofill styling */
         input:-webkit-autofill {
           -webkit-box-shadow: 0 0 0 100px var(--Bg) inset !important;
           -webkit-text-fill-color: var(--C);
@@ -37,12 +39,13 @@ export class Login extends HTMLElement {
           -webkit-text-fill-color: var(--C);
         }
 
-        .input_container {
+        /* Input container with command-line style prefix */
+        .input-container {
           position: relative;
           margin-bottom: 15px;
         }
 
-        .input_container::before {
+        .input-container::before {
           content: ">";
           position: absolute;
           top: 10px;
@@ -52,11 +55,13 @@ export class Login extends HTMLElement {
           text-shadow: 0 0 5px var(--Ts);
         }
 
+        /* Text selection styling */
         ::selection {
           background-color: var(--C);
           color: var(--Bg);
         }
 
+        /* Button styling */
         button {
           background: transparent;
           color: var(--C);
@@ -68,23 +73,34 @@ export class Login extends HTMLElement {
           text-decoration: underline;
           display: block;
         }
+
+        /* Error message styling */
+        .form__error {
+          color: red;
+          font-family: 'VT323', Helvetica, sans-serif;
+          font-size: calc(0.8em + 0.3vw);
+          display: none;
+        }
       </style>
       
-      <form class="form" id="login-form">
+      <!-- Login Form -->
+      <form id="login-form">
         <label for="email_or_username" class="form__label">Username:</label>
-        <div class="input_container">
-          <input type="text" class="form__input" id="email_or_username" required autofocus>
+        <div class="input-container">
+          <input type="text" id="email_or_username" required autofocus>
         </div>
+
         <label for="password" class="form__label">Password:</label>
-        <div class="input_container">
-          <input type="password" class="form__input" id="password" required>
+        <div class="input-container">
+          <input type="password" id="password" required>
         </div>
-        <button type="submit" class="form__button">Proceed</button>
-        <p class="form__error" id="error-message" style="display: none;"></p>
+
+        <button type="submit">Proceed</button>
+        <p class="form__error" id="error-message"></p>
       </form>
     `;
 
-    // Add event listener to handle form submission.
-    this.shadowRoot.querySelector('#login-form').addEventListener('submit', login_handler);
+    // Attach event listener for form submission
+    this.shadowRoot.querySelector('#login-form').addEventListener('submit', loginHandler);
   }
 }
