@@ -54,7 +54,7 @@ export class ProfilePage extends HTMLElement {
 
     const renderProjects = (projects) =>
       projects.length > 0
-        ? projects.map(proj => `<li> ${proj.group.path} (${proj.group.status})</li>`).join("")
+        ? projects.map(proj => `<li> ${proj.group.path.split("/oujda")[1]} (${proj.group.status})</li>`).join("")
         : `<li class="no-projects">No projects available</li>`;
 
     this.shadowRoot.innerHTML = `
@@ -171,7 +171,6 @@ export class ProfilePage extends HTMLElement {
 
         <div class="projects">
           <h2>Projects</h2>
-
           <h3>Finished Projects</h3>
           <ul>${renderProjects(user.finished_projects)}</ul>
 
