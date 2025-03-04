@@ -71,32 +71,36 @@ export class ProfilePage extends HTMLElement {
           background: var(--Bg);
           padding: 20px;
           border: 1px solid var(--C);
-          border-radius: 5px;
           text-shadow: 0 0 5px var(--Ts);
           height: calc(100vh - 128px);
           overflow-y: auto;
         }
         /* Scrollbar Styling */
-        .window-content::-webkit-scrollbar,
+        ::-webkit-scrollbar,
         form textarea::-webkit-scrollbar {
           width: 18px;
           height: 18px;
         }
-        .window-content::-webkit-scrollbar-track,
+        ::-webkit-scrollbar-track,
         form textarea::-webkit-scrollbar-track {
           background-color: rgba(0, 128, 0, 0.2);
         }
-        .window-content::-webkit-scrollbar-thumb,
+        ::-webkit-scrollbar-thumb,
         form textarea::-webkit-scrollbar-thumb {
           background-color: rgba(0, 255, 0, 1);
         }
-        .window-content::-webkit-scrollbar-thumb:hover,
+        ::-webkit-scrollbar-thumb:hover,
         form textarea::-webkit-scrollbar-thumb:hover {
           background-color: rgba(0, 255, 0, 0.8);
         }
-        .window-content::-webkit-scrollbar-corner,
+        ::-webkit-scrollbar-corner,
         form textarea::-webkit-scrollbar-corner {
           background-color: transparent;
+        }
+        ::selection {
+          background-color: rgba(0, 255, 0, 0.2);
+          color: var(--Bg);
+          text-shadow: none;
         }
         .info {
           display: flex;
